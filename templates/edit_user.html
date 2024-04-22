@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit User</title>
+</head>
+<body>
+    <h1>Edit User: {{ user.full_name }}</h1>
+    <form method="POST">
+        First Name: <input type="text" name="first_name" value="{{ user.first_name }}" required><br>
+        Last Name: <input type="text" name="last_name" value="{{ user.last_name }}" required><br>
+        Image URL: <input type="text" name="image_url" value="{{ user.image_url }}"><br>
+        <input type="submit" value="Save Changes">
+    </form>
+    <a href="/users/{{ user.id }}">Cancel</a>
+</body>
+</html>
