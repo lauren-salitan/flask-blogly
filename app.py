@@ -111,7 +111,7 @@
 
 from flask import Flask, request, redirect, render_template, url_for, abort
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post
+from models import db, connect_db, User, Post, Tag, PostTag
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///blogly'
@@ -240,6 +240,9 @@ if __name__ == '__main__':
 def new_post(user_id):
     if request.method == 'POST':
         new_post = Post(title=request.form['title'], content=request.form['content'], user_id=user_id)
+        tag_ids = [int(id) for id in request.form.getlist('tag_ids')]
+        tags = Tag.query.filter(Tag.id.in_(tag_ids)).all()
+        new_post.tags = tags
         db.session.add(new_post)
         db.session.commit()
         return redirect(url_for('user_detail', user_id=user_id))
@@ -256,6 +259,9 @@ def edit_post(post_id):
     if request.method == 'POST':
         post.title = request.form['title']
         post.content = request.form['content']
+        tag_ids = [int(id) for id in request.form.getlist('tag_ids')]
+        tags = Tag.query.filter(Tag.id.in_(tag_ids)).all()
+        new_post.tags = tags
         db.session.commit()
         return redirect(url_for('show_post', post_id=post_id))
     return render_template('edit_post.html', post=post)
@@ -266,6 +272,51 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return redirect(url_for('users_index'))
+
+@app.route('/tags', methods=['GET'])
+def list_tags():
+    """Display all tags."""
+    tags = Tag.query.all()
+    return render_template('tags.html', tags=tags)
+
+@app.route('/tags/new', methods=['GET', 'POST'])
+def new_tag():
+    """Add a new tag."""
+    if request.method == 'POST':
+        name = request.form['name']
+        if not Tag.query.filter_by(name=name).first():  # Ensure uniqueness
+            new_tag = Tag(name=name)
+            db.session.add(new_tag)
+            db.session.commit()
+            return redirect(url_for('list_tags'))
+        else:
+            return "Tag already exists!", 400
+    return render_template('new_tag.html')
+
+@app.route('/tags/<int:tag_id>', methods=['GET'])
+def show_tag(tag_id):
+    """Show details about a specific tag."""
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template('tag_detail.html', tag=tag)
+
+@app.route('/tags/<int:tag_id>/edit', methods=['GET', 'POST'])
+def edit_tag(tag_id):
+    """Edit an existing tag."""
+    tag = Tag.query.get_or_404(tag_id)
+    if request.method == 'POST':
+        tag.name = request.form['name']
+        db.session.commit()
+        return redirect(url_for('list_tags'))
+    return render_template('edit_tag.html', tag=tag)
+
+@app.route('/tags/<int:tag_id>/delete', methods=['POST'])
+def delete_tag(tag_id):
+    """Delete a tag."""
+    tag = Tag.query.get_or_404(tag_id)
+    db.session.delete(tag)
+    db.session.commit()
+    return redirect(url_for('list_tags'))
+
 
 ###########################
 

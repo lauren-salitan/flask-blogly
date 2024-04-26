@@ -12,6 +12,12 @@
     <div class="form-group">
         <label for="content">Content</label>
         <textarea class="form-control" id="content" name="content" rows="4" required>{{ post.content }}</textarea>
+        <select multiple name="tag_ids">
+            {% for tag in tags %}
+            <option value="{{ tag.id }}">{{ tag.name }}</option>
+            {% endfor %}
+        </select>
+
     </div>
     <button type="submit" class="btn btn-primary">Update Post</button>
     <a href="{{ url_for('show_post', post_id=post.id) }}" class="btn btn-secondary">Cancel</a>

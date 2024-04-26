@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+<!-- {% extends "base.html" %}
 
 {% block title %}Add New Post{% endblock %}
 
@@ -12,7 +12,35 @@
     <div class="form-group">
         <label for="content">Content</label>
         <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+        <select multiple name="tag_ids">
+            {% for tag in tags %}
+                <option value="{{ tag.id }}">{{ tag.name }}</option>
+            {% endfor %}
+        </select>
+        
     </div>
     <button type="submit" class="btn btn-primary">Create Post</button>
 </form>
+{% endblock %} -->
+{% extends "base.html" %}
+
+{% block title %}Add New Post{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Add New Post</h1>
+    <form method="POST" action="{{ url_for('new_post') }}">
+        ...
+        <div class="form-group">
+            <label for="tags">Tags</label>
+            <select multiple class="form-control" id="tags" name="tag_ids">
+                {% for tag in tags %}
+                    <option value="{{ tag.id }}">{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        ...
+        <button type="submit" class="btn btn-primary">Create Post</button>
+    </form>
+</div>
 {% endblock %}

@@ -101,3 +101,18 @@ class Post(db.Model):
     # created_at = db.Column(db.Date, default=db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
+    tags = db.relationship('Tag', secondary='post_tags', backref='posts')
+
+class Tag(db.Model):
+    """Tag that can be added to posts"""
+    __tablename__ = 'tags'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+
+class PostTag(db.Model):
+    """Association table between posts and tags"""
+    __tablename__ = 'post_tags'
+
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), primary_key=True)
